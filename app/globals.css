@@ -1,0 +1,520 @@
+/* JupyterLab / Notebook 7 light theme — forced regardless of OS preference. */
+:root {
+  color-scheme: light;
+
+  --jp-ui-font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", helvetica, arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --jp-code-font-family: menlo, consolas, "DejaVu Sans Mono", monospace;
+  --jp-ui-font-size1: 13px;
+  --jp-ui-font-size2: 1.2em;
+  --jp-code-font-size: 13px;
+  --jp-code-line-height: 1.3077;
+  --jp-content-font-size1: 14px;
+  --jp-content-line-height: 1.6;
+
+  --jp-ui-font-color0: rgba(0, 0, 0, 1);
+  --jp-ui-font-color1: rgba(0, 0, 0, 0.87);
+  --jp-ui-font-color2: rgba(0, 0, 0, 0.54);
+  --jp-ui-font-color3: rgba(0, 0, 0, 0.38);
+  --jp-content-font-color1: rgba(0, 0, 0, 0.87);
+
+  --jp-layout-color0: #fff;
+  --jp-layout-color1: #fff;
+  --jp-layout-color2: #eee;
+  --jp-layout-color3: #bdbdbd;
+  --jp-border-color1: #bdbdbd;
+  --jp-border-color2: #e0e0e0;
+  --jp-border-color3: #eee;
+
+  --jp-brand-color1: #1976d2;
+  --jp-brand-color2: #42a5f5;
+  --jp-warn-color0: #f37726;
+  --jp-icon3: #616161;
+
+  --jp-cell-editor-background: #f5f5f5;
+  --jp-cell-editor-border-color: #e0e0e0;
+  --jp-cell-editor-active-background: #fff;
+  --jp-cell-editor-active-border-color: #1976d2;
+  --jp-cell-inprompt-font-color: #307fc1;
+  --jp-cell-outprompt-font-color: #bf5b3d;
+  --jp-cell-prompt-width: 64px;
+  --jp-cell-prompt-not-active-opacity: 0.5;
+  --jp-cell-padding: 5px;
+  --jp-cell-collapser-width: 8px;
+  --jp-rendermime-error-background: #fdd;
+
+  --jp-toolbar-height: 32px;
+  --jp-menubar-height: 28px;
+  --jp-elevation-z4: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+  --jp-elevation-z6: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+    0 1px 18px 0 rgba(0, 0, 0, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color1);
+  font-family: var(--jp-ui-font-family);
+  font-size: var(--jp-ui-font-size1);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+select,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+.jp-App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ---------- Top panel ---------- */
+.jp-TopPanel {
+  flex: none;
+  background: var(--jp-layout-color1);
+}
+
+.jp-TopBar {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 8px 0 12px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.jp-TopBar-logo {
+  display: flex;
+  align-items: center;
+  flex: none;
+  margin-right: 8px;
+}
+
+.jp-JupyterLogo {
+  display: block;
+}
+
+.jp-NotebookTitle {
+  min-width: 0;
+}
+
+.jp-NotebookTitle-text {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  padding: 2px 6px;
+  font-size: 18px;
+  color: var(--jp-ui-font-color0);
+  cursor: pointer;
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jp-NotebookTitle-text:hover {
+  border-color: var(--jp-border-color2);
+  background: var(--jp-layout-color2);
+}
+
+.jp-NotebookTitle-input {
+  font-size: 18px;
+  padding: 2px 6px;
+  border: 1px solid var(--jp-brand-color1);
+  outline: none;
+  border-radius: 2px;
+  width: min(360px, 50vw);
+}
+
+.jp-NotebookCheckpoint {
+  color: var(--jp-ui-font-color2);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Menu bar ---------- */
+.jp-MenuBar {
+  display: flex;
+  align-items: stretch;
+  height: var(--jp-menubar-height);
+  padding-left: 4px;
+  border-bottom: 1px solid var(--jp-border-color2);
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+}
+
+.jp-MenuBar-itemWrap {
+  position: relative;
+  display: flex;
+}
+
+.jp-MenuBar-item {
+  background: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  padding: 0 8px;
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+  cursor: default;
+  line-height: calc(var(--jp-menubar-height) - 2px);
+}
+
+.jp-MenuBar-item:hover {
+  background: var(--jp-layout-color2);
+}
+
+.jp-MenuBar-item.jp-mod-active {
+  background: var(--jp-layout-color1);
+  border-color: var(--jp-border-color1);
+  position: relative;
+  z-index: 101;
+}
+
+.jp-Menu {
+  position: fixed;
+  z-index: 100;
+  margin: 0;
+  min-width: 240px;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color1);
+  box-shadow: var(--jp-elevation-z6);
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+}
+
+.jp-Menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 4px 12px 4px 24px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.jp-Menu-item:not(.jp-mod-disabled):hover {
+  background: var(--jp-layout-color2);
+}
+
+.jp-Menu-item.jp-mod-disabled {
+  color: var(--jp-ui-font-color3);
+}
+
+.jp-Menu-itemShortcut {
+  color: var(--jp-ui-font-color2);
+}
+
+.jp-Menu-separator {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--jp-border-color2);
+}
+
+/* ---------- Notebook panel & toolbar ---------- */
+.jp-NotebookPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.jp-Toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--jp-toolbar-height);
+  padding: 0 8px;
+  background: var(--jp-layout-color1);
+  border-bottom: 1px solid var(--jp-border-color2);
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.24);
+  z-index: 2;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.jp-ToolbarButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 24px;
+  min-width: 24px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--jp-icon3);
+  cursor: pointer;
+  flex: none;
+}
+
+.jp-ToolbarButton:hover:not(:disabled) {
+  background: var(--jp-layout-color2);
+}
+
+.jp-ToolbarButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.jp-Toolbar-text {
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.jp-Toolbar-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  flex: none;
+}
+
+.jp-Toolbar-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 24px;
+  padding: 0 22px 0 8px;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+}
+
+.jp-Toolbar-select select:hover {
+  background: var(--jp-layout-color2);
+}
+
+.jp-Toolbar-selectCaret {
+  position: absolute;
+  right: 2px;
+  pointer-events: none;
+  color: var(--jp-icon3);
+}
+
+.jp-Toolbar-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+.jp-Toolbar-status {
+  color: var(--jp-ui-font-color2);
+  font-size: 12px;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.jp-KernelName {
+  color: var(--jp-ui-font-color1);
+}
+
+.jp-KernelStatus {
+  width: 14px;
+  height: 14px;
+  margin: 0 6px 0 4px;
+  border-radius: 50%;
+  border: 2px solid var(--jp-icon3);
+  background: transparent;
+  flex: none;
+}
+
+.jp-KernelStatus.jp-mod-busy {
+  background: var(--jp-icon3);
+}
+
+/* ---------- Notebook ---------- */
+.jp-NotebookScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--jp-layout-color2);
+}
+
+.jp-Notebook {
+  max-width: 1200px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 10px 16px 30vh 8px;
+  background: var(--jp-layout-color0);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.12);
+}
+
+.jp-Cell {
+  position: relative;
+  padding: var(--jp-cell-padding);
+  padding-left: calc(var(--jp-cell-padding) + var(--jp-cell-collapser-width));
+}
+
+.jp-Cell-bar {
+  position: absolute;
+  left: var(--jp-cell-padding);
+  top: var(--jp-cell-padding);
+  bottom: var(--jp-cell-padding);
+  width: 6px;
+  border-radius: 1px;
+  background: transparent;
+}
+
+.jp-Cell:hover .jp-Cell-bar {
+  background: var(--jp-border-color2);
+}
+
+.jp-Cell.jp-mod-active .jp-Cell-bar {
+  background: var(--jp-brand-color1);
+}
+
+.jp-InputArea {
+  display: flex;
+  min-width: 0;
+}
+
+.jp-InputPrompt,
+.jp-OutputPrompt {
+  flex: 0 0 var(--jp-cell-prompt-width);
+  width: var(--jp-cell-prompt-width);
+  padding: 5px 4px 0 0;
+  font-family: var(--jp-code-font-family);
+  font-size: var(--jp-code-font-size);
+  line-height: var(--jp-code-line-height);
+  text-align: right;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.jp-InputPrompt {
+  color: var(--jp-cell-inprompt-font-color);
+  opacity: var(--jp-cell-prompt-not-active-opacity);
+}
+
+.jp-Cell.jp-mod-active .jp-InputPrompt {
+  opacity: 1;
+}
+
+.jp-InputArea-editor {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--jp-cell-editor-border-color);
+  background: var(--jp-cell-editor-background);
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.jp-InputArea-editor:focus-within {
+  border-color: var(--jp-cell-editor-active-border-color);
+  background: var(--jp-cell-editor-active-background);
+}
+
+.jp-InputArea-editor .cm-editor {
+  background: transparent;
+}
+
+/* Rendered (plain-text) markdown cells */
+.jp-RenderedMarkdown {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 20px 4px 4px;
+  font-size: var(--jp-content-font-size1);
+  line-height: var(--jp-content-line-height);
+  color: var(--jp-content-font-color1);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.jp-MarkdownCell .jp-InputPrompt {
+  visibility: hidden;
+}
+
+/* Cell toolbar (active / hovered cell) */
+.jp-cell-toolbar {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  z-index: 3;
+  display: none;
+  gap: 2px;
+  padding: 1px;
+  background: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.jp-Cell.jp-mod-active > .jp-cell-toolbar,
+.jp-Cell:hover > .jp-cell-toolbar {
+  display: flex;
+}
+
+.jp-cell-toolbar .jp-ToolbarButton {
+  height: 22px;
+  min-width: 22px;
+}
+
+/* Output area */
+.jp-OutputArea {
+  display: flex;
+  min-width: 0;
+  margin-top: 5px;
+}
+
+.jp-OutputPrompt {
+  color: var(--jp-cell-outprompt-font-color);
+}
+
+.jp-RenderedText {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 5px 5px 5px 8px;
+  font-family: var(--jp-code-font-family);
+  font-size: var(--jp-code-font-size);
+  line-height: var(--jp-code-line-height);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.jp-RenderedText.jp-mod-stderr {
+  background: var(--jp-rendermime-error-background);
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 640px) {
+  :root {
+    --jp-cell-prompt-width: 44px;
+  }
+  .jp-NotebookCheckpoint {
+    display: none;
+  }
+  .jp-Notebook {
+    padding-right: 6px;
+  }
+  .jp-KernelName,
+  .jp-Toolbar-text span {
+    display: none;
+  }
+}
