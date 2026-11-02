@@ -1,5 +1,5 @@
-import OpenAI from "openai";
-import { buildMessages, sanitizeHistory, sanitizePrompt, type ChatMessage } from "@/lib/llm";
+import { ApiError, GoogleGenAI } from "@google/genai";
+import { buildContents, sanitizeHistory, sanitizePrompt, SYSTEM_PROMPT } from "@/lib/llm";
 import { STREAM_ERROR_MARKER } from "@/lib/parse";
 
 export const runtime = "nodejs";
@@ -9,37 +9,15 @@ export const maxDuration = 300;
 
 const DEFAULT_MAX_TOKENS = 32768;
 
-type TokenParam = "max_tokens" | "max_completion_tokens" | "none";
-
 function jsonError(message: string, status: number) {
   return Response.json({ error: message }, { status });
 }
 
-async function openStream(client: OpenAI, model: string, messages: ChatMessage[], maxTokens: number) {
-  // Providers differ on which output-limit parameter they accept, so fall back on 400s.
-  const attempts: TokenParam[] = ["max_tokens", "max_completion_tokens", "none"];
-  let lastError: unknown;
-  for (const param of attempts) {
-    try {
-      return await client.chat.completions.create({
-        model,
-        messages,
-        stream: true,
-        ...(param === "none" ? {} : { [param]: maxTokens }),
-      });
-    } catch (err) {
-      lastError = err;
-      if (!(err instanceof OpenAI.APIError) || err.status !== 400) throw err;
-    }
-  }
-  throw lastError;
-}
-
 export async function POST(req: Request) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL;
+  const apiKey = process.env.GEMINI_API_KEY;
+  const model = process.env.GEMINI_MODEL;
   if (!apiKey || !model) {
-    return jsonError("Server is missing OPENAI_API_KEY or OPENAI_MODEL.", 500);
+    return jsonError("Server is missing GEMINI_API_KEY or GEMINI_MODEL.", 500);
   }
 
   let body: unknown;
@@ -52,15 +30,24 @@ export async function POST(req: Request) {
   const prompt = sanitizePrompt(rawPrompt);
   if (!prompt) return jsonError("Prompt is empty.", 400);
 
-  const maxTokens = Number(process.env.OPENAI_MAX_TOKENS) || DEFAULT_MAX_TOKENS;
-  const client = new OpenAI({ apiKey, baseURL: process.env.OPENAI_BASE_URL || undefined });
-  const messages = buildMessages(sanitizeHistory(rawHistory), prompt);
+  const maxTokens = Number(process.env.GEMINI_MAX_TOKENS) || DEFAULT_MAX_TOKENS;
+  const ai = new GoogleGenAI({ apiKey });
+  const contents = buildContents(sanitizeHistory(rawHistory), prompt);
+  const abort = new AbortController();
 
-  let stream: Awaited<ReturnType<typeof openStream>>;
+  let stream: Awaited<ReturnType<typeof ai.models.generateContentStream>>;
   try {
-    stream = await openStream(client, model, messages, maxTokens);
+    stream = await ai.models.generateContentStream({
+      model,
+      contents,
+      config: {
+        systemInstruction: SYSTEM_PROMPT,
+        maxOutputTokens: maxTokens,
+        abortSignal: abort.signal,
+      },
+    });
   } catch (err) {
-    const status = err instanceof OpenAI.APIError && err.status ? err.status : 502;
+    const status = err instanceof ApiError && err.status ? err.status : 502;
     const message = err instanceof Error ? err.message : "Model request failed.";
     return jsonError(message, status);
   }
@@ -70,7 +57,7 @@ export async function POST(req: Request) {
     async start(controller) {
       try {
         for await (const chunk of stream) {
-          const delta = chunk.choices?.[0]?.delta?.content;
+          const delta = chunk.text;
           if (delta) controller.enqueue(encoder.encode(delta));
         }
       } catch (err) {
@@ -81,7 +68,7 @@ export async function POST(req: Request) {
       }
     },
     cancel() {
-      stream.controller.abort();
+      abort.abort();
     },
   });
 

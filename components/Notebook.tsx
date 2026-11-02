@@ -125,6 +125,9 @@ export default function Notebook() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [cells, setCells] = useState<UICell[]>([]);
   const [draft, setDraft] = useState("");
+  // The prompt text is masked unless the eye button or Ctrl+E is held down.
+  const [revealDraft, setRevealDraft] = useState(false);
+  const [revealByKey, setRevealByKey] = useState(false);
   const [execCount, setExecCount] = useState(0);
   const [running, setRunning] = useState(false);
   const [received, setReceived] = useState(0);
@@ -187,6 +190,29 @@ export default function Notebook() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Hold Ctrl+E to show the masked prompt; releasing either key hides it again.
+  useEffect(() => {
+    const onDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && !e.altKey && !e.metaKey && e.key.toLowerCase() === "e") {
+        e.preventDefault();
+        e.stopPropagation();
+        setRevealByKey(true);
+      }
+    };
+    const onUp = (e: KeyboardEvent) => {
+      if (e.key === "Control" || e.key.toLowerCase() === "e") setRevealByKey(false);
+    };
+    const hide = () => setRevealByKey(false);
+    window.addEventListener("keydown", onDown, true);
+    window.addEventListener("keyup", onUp, true);
+    window.addEventListener("blur", hide);
+    return () => {
+      window.removeEventListener("keydown", onDown, true);
+      window.removeEventListener("keyup", onUp, true);
+      window.removeEventListener("blur", hide);
+    };
   }, []);
 
   const lastTurn = useMemo(() => cells.reduce((m, c) => Math.max(m, c.turn), 0), [cells]);
@@ -570,8 +596,32 @@ export default function Notebook() {
                 ) : null
               }
             >
-              <div className="jp-InputArea-editor">
+              <div className={`jp-InputArea-editor jp-InputArea-masked${revealDraft || revealByKey ? "" : " jp-mod-masked"}`}>
+                <button
+                  type="button"
+                  className="jp-RevealButton"
+                  title="Hold to show the prompt"
+                  aria-label="Hold to show the prompt"
+                  aria-pressed={revealDraft}
+                  onPointerDown={(e) => {
+                    // Keep focus (and the caret) in the editor while revealing.
+                    e.preventDefault();
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                    setRevealDraft(true);
+                  }}
+                  onPointerUp={() => setRevealDraft(false)}
+                  onPointerCancel={() => setRevealDraft(false)}
+                  onLostPointerCapture={() => setRevealDraft(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") setRevealDraft(true);
+                  }}
+                  onKeyUp={() => setRevealDraft(false)}
+                  onBlur={() => setRevealDraft(false)}
+                >
+                  <Icon name="visibility" />
+                </button>
                 <CellEditor
+                  markSelection
                   value={draft}
                   onChange={setDraft}
                   readOnly={running}

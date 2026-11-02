@@ -10,6 +10,7 @@ Rules:
 - Precede every code cell with exactly one markdown cell containing one or two short plain-text sentences describing what the code cell below does.
 - Markdown cells must be plain text only: no headings, no bold or italics, no bullet lists, no links, no backticks.
 - Code cells must contain valid, runnable Python. Split code into logical cells, put imports in the first code cell, and do not wrap code in markdown fences.
+- Do not use seaborn. For visualizations use matplotlib and never import seaborn.
 - Do not include cell outputs.`;
 
 const MAX_TURNS = 8;
@@ -17,7 +18,8 @@ const MAX_PROMPT_CHARS = 20_000;
 const MAX_CELL_CHARS = 60_000;
 const MAX_CELLS = 400;
 
-export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
+/** Gemini conversation turn: earlier notebooks are replayed as "model" replies. */
+export type ChatContent = { role: "user" | "model"; parts: { text: string }[] };
 
 /** Validate and cap untrusted history coming from the browser. */
 export function sanitizeHistory(value: unknown): HistoryTurn[] {
@@ -48,12 +50,12 @@ export function sanitizePrompt(value: unknown): string {
   return typeof value === "string" ? value.trim().slice(0, MAX_PROMPT_CHARS) : "";
 }
 
-export function buildMessages(history: HistoryTurn[], prompt: string): ChatMessage[] {
-  const messages: ChatMessage[] = [{ role: "system", content: SYSTEM_PROMPT }];
+export function buildContents(history: HistoryTurn[], prompt: string): ChatContent[] {
+  const contents: ChatContent[] = [];
   for (const turn of history) {
-    messages.push({ role: "user", content: turn.prompt || "(earlier request)" });
-    messages.push({ role: "assistant", content: JSON.stringify({ cells: turn.cells }) });
+    contents.push({ role: "user", parts: [{ text: turn.prompt || "(earlier request)" }] });
+    contents.push({ role: "model", parts: [{ text: JSON.stringify({ cells: turn.cells }) }] });
   }
-  messages.push({ role: "user", content: prompt });
-  return messages;
+  contents.push({ role: "user", parts: [{ text: prompt }] });
+  return contents;
 }

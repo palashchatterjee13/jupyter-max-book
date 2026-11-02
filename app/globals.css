@@ -433,6 +433,57 @@ input {
   background: transparent;
 }
 
+/* Input cell: prompt text is hidden unless the eye button is held */
+.jp-InputArea-masked {
+  position: relative;
+}
+
+.jp-InputArea-masked .cm-content {
+  padding-right: 28px;
+}
+
+.jp-InputArea-masked.jp-mod-masked .cm-line,
+.jp-InputArea-masked.jp-mod-masked .cm-line * {
+  color: transparent !important;
+}
+
+.jp-InputArea-masked.jp-mod-masked .cm-line .cm-revealSelection,
+.jp-InputArea-masked.jp-mod-masked .cm-line .cm-revealSelection * {
+  color: #212121 !important;
+}
+
+.jp-InputArea-masked.jp-mod-masked .cm-line .cm-placeholder {
+  color: #9e9e9e !important;
+}
+
+.jp-RevealButton {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--jp-ui-font-color2);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.jp-RevealButton:hover {
+  background: var(--jp-layout-color2);
+}
+
+.jp-RevealButton[aria-pressed="true"] {
+  color: var(--jp-brand-color1);
+}
+
 /* Rendered (plain-text) markdown cells */
 .jp-RenderedMarkdown {
   flex: 1;

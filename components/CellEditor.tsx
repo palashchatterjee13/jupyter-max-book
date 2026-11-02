@@ -4,8 +4,8 @@ import { useMemo, useRef } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
-import { EditorView, keymap } from "@codemirror/view";
-import { Prec } from "@codemirror/state";
+import { Decoration, EditorView, keymap, ViewPlugin, type DecorationSet, type ViewUpdate } from "@codemirror/view";
+import { Prec, RangeSetBuilder, type EditorState } from "@codemirror/state";
 import { tags as t } from "@lezer/highlight";
 
 // JupyterLab light theme syntax colours (--jp-mirror-editor-*).
@@ -47,6 +47,30 @@ const jupyterTheme = EditorView.theme(
   { dark: false },
 );
 
+// Tags selected text with .cm-revealSelection so masked editors can still show it.
+const revealSelectionMark = Decoration.mark({ class: "cm-revealSelection" });
+
+function selectionDecorations(state: EditorState): DecorationSet {
+  const builder = new RangeSetBuilder<Decoration>();
+  for (const range of state.selection.ranges) {
+    if (!range.empty) builder.add(range.from, range.to, revealSelectionMark);
+  }
+  return builder.finish();
+}
+
+const markSelectionPlugin = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet;
+    constructor(view: EditorView) {
+      this.decorations = selectionDecorations(view.state);
+    }
+    update(update: ViewUpdate) {
+      if (update.selectionSet || update.docChanged) this.decorations = selectionDecorations(update.state);
+    }
+  },
+  { decorations: (plugin) => plugin.decorations },
+);
+
 interface Props {
   value: string;
   onChange?: (value: string) => void;
@@ -55,9 +79,10 @@ interface Props {
   placeholder?: string;
   onRun?: () => void;
   onCreate?: (view: EditorView) => void;
+  markSelection?: boolean;
 }
 
-export default function CellEditor({ value, onChange, language = "text", readOnly, placeholder, onRun, onCreate }: Props) {
+export default function CellEditor({ value, onChange, language = "text", readOnly, placeholder, onRun, onCreate, markSelection }: Props) {
   const onRunRef = useRef(onRun);
   onRunRef.current = onRun;
 
@@ -70,6 +95,7 @@ export default function CellEditor({ value, onChange, language = "text", readOnl
       jupyterTheme,
       syntaxHighlighting(jupyterHighlight),
       ...(language === "python" ? [python()] : [EditorView.lineWrapping]),
+      ...(markSelection ? [markSelectionPlugin] : []),
       Prec.highest(
         keymap.of([
           { key: "Shift-Enter", run: runKey },
@@ -77,7 +103,7 @@ export default function CellEditor({ value, onChange, language = "text", readOnl
         ]),
       ),
     ];
-  }, [language]);
+  }, [language, markSelection]);
 
   return (
     <CodeMirror
